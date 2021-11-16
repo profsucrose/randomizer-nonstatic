@@ -9,7 +9,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 
 // router
 import { Link, Routes, Route, Outlet } from "react-router-dom";
-import PrivateRoute from "./auth/PrivateRoute";
+// import PrivateRoute from "./auth/PrivateRoute";
 
 export default function App() {
   return (
@@ -17,7 +17,7 @@ export default function App() {
       <Route path="/" element={<AppLayout />}>
         <Route path="/" element={<span>Hi!</span>} />
       </Route>
-      <PrivateRoute path="/admin" element={<span>Admin</span>} />
+      {/* <PrivateRoute path="/admin" element={<span>Admin</span>} /> */}
     </Routes>
   );
 }
