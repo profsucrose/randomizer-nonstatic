@@ -4,12 +4,20 @@ import React, {
   createContext,
   Dispatch,
   SetStateAction,
+  useContext,
+  useCallback,
 } from "react";
 
 // Firebase
 import app from "./base";
-import { getAuth, User as FirebaseUser } from "firebase/auth";
+import {
+  getAuth,
+  User as FirebaseUser,
+  browserLocalPersistence,
+  signInWithPopup,
+} from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
+import popupProvider from "./popupProvider";
 
 // user is either a Firebase User or null
 type User = FirebaseUser | null;
@@ -29,14 +37,18 @@ interface AuthContextInterface {
   userAlreadyExists: UserExistenceState;
   setUserAlreadyExists: Dispatch<SetStateAction<UserExistenceState>>;
   hasAuth?: boolean | null;
-  logOut: Function;
+  logIn: () => Promise<void>;
+  logOut: () => Promise<void>;
+  isLoaded: boolean;
 }
 const contextConfig: AuthContextInterface = {
   currentUser: null,
   userAlreadyExists: UserExistenceState.Initializing,
   setUserAlreadyExists: () => {},
   hasAuth: false,
-  logOut: () => {},
+  logIn: async () => {},
+  logOut: async () => {},
+  isLoaded: true,
 };
 
 export const AuthContext = createContext(contextConfig);
@@ -47,6 +59,8 @@ const firestore = getFirestore(app);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User>({} as User);
+  // whether or not auth has loaded
+  const [isLoaded, setIsLoaded] = useState(false);
   const [userAlreadyExists, setUserAlreadyExists] = useState(
     UserExistenceState.Initializing
   );
@@ -55,8 +69,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       auth.onAuthStateChanged(async (user) => {
         setCurrentUser(user);
+        // huzzah! auth has loaded
+        setIsLoaded(true);
         if (user) {
-          // assuming user exists
+          // user exists
           try {
             let userDoc =
               // await firestore.collection("users").doc(user.uid).get()
@@ -81,6 +97,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  const handleLogIn = useCallback(async () => {
+    await auth.setPersistence(browserLocalPersistence);
+    await signInWithPopup(auth, popupProvider);
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -88,7 +109,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         userAlreadyExists,
         setUserAlreadyExists,
         hasAuth: !isEmptyUser(currentUser),
+        logIn: handleLogIn,
         logOut: auth.signOut.bind(auth),
+        isLoaded,
       }}
     >
       {children}
@@ -100,3 +123,8 @@ export const isEmptyUser = (userObj: User | null) => {
   const user = userObj || {};
   return Object.keys(user).length === 0 && user.constructor === Object;
 };
+
+// auth hook
+export function useAuth() {
+  return useContext(AuthContext);
+}

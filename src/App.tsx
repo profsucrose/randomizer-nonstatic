@@ -9,17 +9,30 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 
 // router
 import { Link, Routes, Route, Outlet } from "react-router-dom";
-// import PrivateRoute from "./auth/PrivateRoute";
+
+// auth
+import PrivateRoute from "./auth/PrivateRoute";
+import { AuthProvider, useAuth } from "./auth/AuthProvider";
+
+// pages
+import RandomizerPage from "./pages/RandomizerPage";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<AppLayout />}>
-        <Route path="/" element={<span>Hi!</span>} />
-      </Route>
-      {/* <PrivateRoute path="/admin" element={<span>Admin</span>} /> */}
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <PrivateRoute path="/admin" element={<AdminPlaceholder />} />
+        <Route path="/" element={<AppLayout />}>
+          <Route path="/" element={<RandomizerPage />} />
+        </Route>
+      </Routes>
+    </AuthProvider>
   );
+}
+
+function AdminPlaceholder() {
+  const auth = useAuth();
+  return <button onClick={auth.logOut}>Log Out</button>;
 }
 
 function AppLayout() {
@@ -35,11 +48,11 @@ function AppLayout() {
           >
             Jeff's Randomizer
           </Typography>
-          <Tooltip title="Admin Login">
+          <Tooltip title="Admin">
             <IconButton
               size="large"
               edge="end"
-              aria-label="Admin Login"
+              aria-label="Admin"
               color="inherit"
               component={Link}
               to="/admin"
