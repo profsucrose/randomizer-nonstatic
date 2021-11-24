@@ -182,12 +182,26 @@ function RandomizerWidget({ name, items }: { name: string; items: string[] }) {
             <Typography
               component="span"
               fontSize="17px"
-              sx={{ color: currentRandomItem ? null : "#666" }}
+              sx={{
+                color:
+                  items.length === 0
+                    ? "error.main" // error red for empty list
+                    : currentRandomItem
+                    ? null
+                    : "#666", // gray for nothing selected
+              }}
             >
-              {currentRandomItem || "Click button to randomize"}
+              {items.length === 0
+                ? "List is empty"
+                : currentRandomItem || "Click button to randomize"}
             </Typography>
           </Box>
-          <Button fullWidth variant="contained" onClick={handleRandomize}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={handleRandomize}
+            disabled={items.length === 0}
+          >
             Randomize
           </Button>
         </CardContent>
@@ -197,7 +211,21 @@ function RandomizerWidget({ name, items }: { name: string; items: string[] }) {
 }
 
 // choose a random item different from the last one shown
-function chooseRandomItem(arr: string[], previous?: string | null): string {
-  const randomItem = arr[Math.floor(Math.random() * arr.length)];
-  return randomItem === previous ? chooseRandomItem(arr, previous) : randomItem;
+function chooseRandomItem(
+  arr: string[],
+  previous?: string | null
+): string | null {
+  switch (arr.length) {
+    case 0:
+      return null; // return null for empty arrays
+    case 1:
+      return arr[0]; // return first item for one-item arrays
+    default:
+      // for all other arrays, choose random item, as long
+      // as it's not the last one we saw
+      const randomItem = arr[Math.floor(Math.random() * arr.length)];
+      return randomItem === previous
+        ? chooseRandomItem(arr, previous)
+        : randomItem;
+  }
 }
