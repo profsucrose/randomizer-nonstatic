@@ -1,4 +1,10 @@
-import { createContext, useCallback, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 // router
 import {
@@ -39,6 +45,13 @@ import AdminPage from "./pages/AdminPage";
 import GlobalSnackbar from "./components/GlobalSnackbar";
 
 export default function App() {
+  const { pathname } = useLocation();
+
+  // scroll restoration on pathname change
+  useEffect(() => {
+    window.scrollTo(0, 0); // reset scroll position
+  }, [pathname]);
+
   return (
     <AuthProvider>
       <Routes>
@@ -80,12 +93,19 @@ function AppLayout() {
   const [snackbarIsVisible, setSnackbarVisibility] = useState<boolean>(false);
 
   const showSnackbarMessage = useCallback(
-    (message) => {
+    async (message) => {
+      // hide snackbar if visible, then wait a little
+      if (snackbarIsVisible) {
+        setSnackbarVisibility(false);
+        await new Promise((res) => setTimeout(res, 150));
+      }
+
+      // set message in state
       setSnackbarMessage(message);
       // show snackbar if message, hide if null
       setSnackbarVisibility(message !== null);
     },
-    [setSnackbarMessage, setSnackbarVisibility]
+    [setSnackbarMessage, setSnackbarVisibility, snackbarIsVisible]
   );
 
   const handleLogOut = useCallback(() => {
@@ -127,6 +147,7 @@ function AppLayout() {
             {/* nav buttons */}
             {navItems.map((item, index) => (
               <NavButton
+                key={item.name + "_" + item.href}
                 navItem={item}
                 // right margin for all except last one
                 marginRight={index + 1 === navItems.length ? 0 : 2}
@@ -159,6 +180,7 @@ function NavButton({
   marginRight?: number | string;
 }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   const isSelected = useMemo(
     () => pathname === navItem.href,
@@ -172,11 +194,10 @@ function NavButton({
     >
       <Tooltip title={navItem.name}>
         <IconButton
+          component="button"
           size="large"
           edge="end"
           aria-label={navItem.name}
-          component={RouterLink}
-          to={navItem.href}
           sx={{
             // add transparent white bg when selected
             backgroundColor: isSelected
@@ -188,6 +209,8 @@ function NavButton({
           disableRipple={isSelected}
           disableTouchRipple={isSelected}
           disableFocusRipple={isSelected}
+          // go to href on click
+          onClick={() => navigate(navItem.href)}
         >
           {navItem.icon}
         </IconButton>

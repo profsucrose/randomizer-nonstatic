@@ -74,17 +74,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (user) {
           // user exists
           try {
-            let userDoc =
-              // await firestore.collection("users").doc(user.uid).get()
-              (await getDoc(doc(firestore, "users", user.uid))).data();
-            if (!userDoc) {
-              setUserAlreadyExists(UserExistenceState.DoesNotExist);
-              return;
-            }
-            setUserAlreadyExists(UserExistenceState.Exists);
+            let adminList = (
+              await getDoc(doc(firestore, "config", "adminList"))
+            ).data()?.admins as string[];
+
+            // set userAlreadyExists based on whether or not
+            // the user is an admin (don't worry!!! this is
+            // all validated using firstore security rules)
+            setUserAlreadyExists(
+              !currentUser?.email || adminList.indexOf(currentUser.email) === -1
+                ? UserExistenceState.DoesNotExist
+                : UserExistenceState.Exists
+            );
           } catch (e: any) {
             // error handling
-            alert(`Auth Error: ${e?.message || "unknown"}`);
+            console.log(`Auth Error: ${e?.message || "unknown"}`);
           }
         } else {
           // user is not logged in
@@ -95,7 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (e) {
       console.error(e);
     }
-  }, []);
+  }, [currentUser?.email, setCurrentUser, setIsLoaded, setUserAlreadyExists]);
 
   const handleLogIn = useCallback(async () => {
     await auth.setPersistence(browserLocalPersistence);

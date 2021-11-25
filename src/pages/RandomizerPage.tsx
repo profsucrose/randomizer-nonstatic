@@ -17,6 +17,11 @@ import {
 } from "@mui/material";
 import PaddedContainer from "../components/PaddedContainer";
 
+// firebase
+import { getFirestore, collection } from "@firebase/firestore";
+import firebaseApp from "../auth/base";
+import { useCollectionData } from "react-firebase-hooks/firestore";
+
 interface RandomizerInfo {
   name: string;
   id: string; // firebase uid most likely
@@ -33,60 +38,68 @@ const RandomizerContext = createContext<RandomizerContextType>({
   removeRandomizeListener: () => {},
 });
 
-const SAMPLE_RANDOMIZERS: RandomizerInfo[] = [
-  {
-    name: "Adjective",
-    id: "adjective",
-    items: [
-      "Funny",
-      "Evil",
-      "Happy",
-      "Scary",
-      "Sad",
-      "Interesting",
-      "Cool",
-      "Boring",
-      "Spicy",
-    ],
-  },
-  {
-    name: "Color",
-    id: "color",
-    items: [
-      "Red",
-      "Orange",
-      "Yellow",
-      "Green",
-      "Blue",
-      "Indigo",
-      "Violet",
-      "Brown",
-      "Purple",
-      "Black",
-      "White",
-    ],
-  },
-  {
-    name: "Animal",
-    id: "animal",
-    items: [
-      "Dog",
-      "Cat",
-      "Sloth",
-      "Leopard",
-      "Turtle",
-      "Tiger",
-      "Worm",
-      "Bear",
-      "Pig",
-      "Sheep",
-    ],
-  },
-];
+// const SAMPLE_RANDOMIZERS: RandomizerInfo[] = [
+//   {
+//     name: "Topics",
+//     id: "topics",
+//     items: [
+//       "Funny",
+//       "Evil",
+//       "Happy",
+//       "Scary",
+//       "Sad",
+//       "Interesting",
+//       "Cool",
+//       "Boring",
+//       "Spicy",
+//     ],
+//   },
+//   {
+//     name: "Processes",
+//     id: "processes",
+//     items: [
+//       "Red",
+//       "Orange",
+//       "Yellow",
+//       "Green",
+//       "Blue",
+//       "Indigo",
+//       "Violet",
+//       "Brown",
+//       "Purple",
+//       "Black",
+//       "White",
+//     ],
+//   },
+//   {
+//     name: "Binaries",
+//     id: "binaries",
+//     items: [
+//       "Dog",
+//       "Cat",
+//       "Sloth",
+//       "Leopard",
+//       "Turtle",
+//       "Tiger",
+//       "Worm",
+//       "Bear",
+//       "Pig",
+//       "Sheep",
+//     ],
+//   },
+// ];
 
 export default function RandomizerPage() {
   const [randomizeListeners, setRandomizeListeners] = useState<(() => void)[]>(
     []
+  );
+
+  const [listsData, listsAreLoading, listsFetchError] = useCollectionData(
+    collection(getFirestore(firebaseApp), "lists"),
+    {
+      snapshotListenOptions: { includeMetadataChanges: true },
+      idField: "id",
+    }
   );
 
   const addRandomizeListener = useCallback(
@@ -124,11 +137,19 @@ export default function RandomizerPage() {
         >
           Randomize All
         </Button>
-        <Grid container spacing={2} columns={{ xs: 1 }}>
-          {SAMPLE_RANDOMIZERS.map(({ name, id, items }) => (
-            <RandomizerWidget key={id} name={name} items={items} />
-          ))}
-        </Grid>
+        {listsAreLoading ? (
+          <div>Loading...</div>
+        ) : listsFetchError && !listsData ? (
+          <div>Error: {listsFetchError.message}</div>
+        ) : (
+          <Grid container spacing={2} columns={{ xs: 1 }}>
+            {(listsData as unknown as RandomizerInfo[]).map(
+              ({ name, id, items }) => (
+                <RandomizerWidget key={id} name={name} items={items} />
+              )
+            )}
+          </Grid>
+        )}
       </RandomizerContext.Provider>
     </PaddedContainer>
   );

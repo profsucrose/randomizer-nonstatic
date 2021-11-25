@@ -30,7 +30,7 @@ export default function GlobalSnackbar({
   return (
     <Snackbar
       open={isVisible}
-      autoHideDuration={6000}
+      autoHideDuration={5000}
       onClose={handleClose}
       message={message}
       action={
