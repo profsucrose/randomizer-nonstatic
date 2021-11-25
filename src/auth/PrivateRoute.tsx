@@ -1,8 +1,11 @@
-import React, { useCallback, useMemo, useState, memo } from "react";
+import React, { useCallback, useMemo, useState, memo, useContext } from "react";
 import { Route } from "react-router-dom";
 
 // hooks
 import { useAuth } from "./AuthProvider";
+
+// context
+import { AppLayoutContext } from "../App";
 
 // components
 import {
@@ -49,6 +52,7 @@ function Login() {
   const { logIn } = useAuth();
   const [logInInProgress, setLogInInProgress] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<Error | null>(null);
+  const { appBar } = useContext(AppLayoutContext);
 
   const handleLogIn = useCallback(() => {
     // start login
@@ -67,10 +71,10 @@ function Login() {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="100vh"
-        padding="15px"
+        boxSizing="border-box"
+        sx={{ height: `calc(100vh - ${appBar.height}px)` }}
       >
-        <Card sx={{ width: 400, textAlign: "center" }}>
+        <Card sx={{ width: "min(400px, 85vw)", textAlign: "center" }}>
           <CardContent>
             <Typography
               component="div"
@@ -106,12 +110,14 @@ function Login() {
 }
 
 const LoadingScreen = memo(function LoadingScreen() {
+  const { appBar } = useContext(AppLayoutContext);
+
   return (
     <Box
       display="flex"
       justifyContent="center"
       alignItems="center"
-      minHeight="100vh"
+      sx={{ height: `calc(100vh - ${appBar.height}px)` }}
     >
       <Box>
         <Box

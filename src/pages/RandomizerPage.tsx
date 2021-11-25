@@ -1,4 +1,13 @@
 import {
+  useCallback,
+  useState,
+  createContext,
+  useEffect,
+  useContext,
+} from "react";
+
+// components
+import {
   Box,
   Button,
   Card,
@@ -6,13 +15,7 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import {
-  useCallback,
-  useState,
-  createContext,
-  useEffect,
-  useContext,
-} from "react";
+import PaddedContainer from "../components/PaddedContainer";
 
 interface RandomizerInfo {
   name: string;
@@ -108,24 +111,26 @@ export default function RandomizerPage() {
   }, [randomizeListeners]);
 
   return (
-    <RandomizerContext.Provider
-      value={{ addRandomizeListener, removeRandomizeListener }}
-    >
-      <Button
-        fullWidth
-        variant="contained"
-        size="large"
-        sx={{ marginBottom: 3, height: "50px" }}
-        onClick={handleRandomizeAll}
+    <PaddedContainer>
+      <RandomizerContext.Provider
+        value={{ addRandomizeListener, removeRandomizeListener }}
       >
-        Randomize All
-      </Button>
-      <Grid container spacing={2}>
-        {SAMPLE_RANDOMIZERS.map(({ name, id, items }) => (
-          <RandomizerWidget key={id} name={name} items={items} />
-        ))}
-      </Grid>
-    </RandomizerContext.Provider>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          sx={{ marginBottom: 3, height: "50px" }}
+          onClick={handleRandomizeAll}
+        >
+          Randomize All
+        </Button>
+        <Grid container spacing={2} columns={{ xs: 1 }}>
+          {SAMPLE_RANDOMIZERS.map(({ name, id, items }) => (
+            <RandomizerWidget key={id} name={name} items={items} />
+          ))}
+        </Grid>
+      </RandomizerContext.Provider>
+    </PaddedContainer>
   );
 }
 
@@ -134,17 +139,17 @@ function RandomizerWidget({ name, items }: { name: string; items: string[] }) {
     null
   );
 
+  const { addRandomizeListener, removeRandomizeListener } =
+    useContext(RandomizerContext);
+
   const handleRandomize = useCallback(() => {
     // set state making sure that the new
     // "random" item isn't the same as
     // the last time
     setCurrentRandomItem((previousItem) =>
-      chooseRandomItem(items, previousItem)
+      chooseRandomString(items, previousItem)
     );
   }, [items, setCurrentRandomItem]);
-
-  const { addRandomizeListener, removeRandomizeListener } =
-    useContext(RandomizerContext);
 
   useEffect(() => {
     // randomize when "randomize all" is clicked
@@ -210,8 +215,12 @@ function RandomizerWidget({ name, items }: { name: string; items: string[] }) {
   );
 }
 
-// choose a random item different from the last one shown
-function chooseRandomItem(
+// choose a "random" item different from the last one shown
+// NOTE: this isn't exactly random, as the method will not
+// produce the same value twice in a row if provided with
+// the previously selected string, unless the array has
+// a length of 1 (which would be weird, wouldn't it?)
+function chooseRandomString(
   arr: string[],
   previous?: string | null
 ): string | null {
@@ -220,12 +229,18 @@ function chooseRandomItem(
       return null; // return null for empty arrays
     case 1:
       return arr[0]; // return first item for one-item arrays
+    case 2:
+      // return the other item in a two-item array
+      // or choose randomly if no previous
+      return previous
+        ? arr.find((item) => item !== previous)!
+        : arr[Math.round(Math.random())];
     default:
       // for all other arrays, choose random item, as long
       // as it's not the last one we saw
       const randomItem = arr[Math.floor(Math.random() * arr.length)];
       return randomItem === previous
-        ? chooseRandomItem(arr, previous)
+        ? chooseRandomString(arr, previous)
         : randomItem;
   }
 }
