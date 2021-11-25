@@ -13,11 +13,14 @@ const ERROR_MODAL_STYLING: SxProps<Theme> = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: "min(400px, 85vw)",
+  boxSizing: "border-box",
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
   borderRadius: "4px",
+  // center text (for now)
+  textAlign: "center",
 };
 
 export default function ErrorModal({
