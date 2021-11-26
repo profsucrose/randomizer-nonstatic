@@ -3,6 +3,9 @@ import { useContext } from "react";
 // context
 import { AppLayoutContext } from "../App";
 
+// config
+import { version as appVersion } from "../../package.json";
+
 // hooks
 import { useAuth } from "../auth/AuthProvider";
 
@@ -12,13 +15,14 @@ import firebaseApp from "../auth/base";
 import { useDocument } from "react-firebase-hooks/firestore";
 
 // components
-import { Button } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import PaddedContainer from "../components/PaddedContainer";
 
 export default function AdminPage() {
   const { currentUser } = useAuth();
-  const { snackbar } = useContext(AppLayoutContext);
+  const { showSnackbarMessage } = useContext(AppLayoutContext);
 
-  const [value, loading, error] = useDocument(
+  const [adminList, loading, error] = useDocument(
     doc(getFirestore(firebaseApp), "config", "adminList"),
     {
       snapshotListenOptions: { includeMetadataChanges: true },
@@ -26,23 +30,42 @@ export default function AdminPage() {
   );
 
   return (
-    <div>
-      <p style={{ fontWeight: 700 }}>
+    <PaddedContainer>
+      <Typography component="h1" variant="h4" gutterBottom>
+        Admin
+      </Typography>
+      <Typography variant="body1" fontWeight="700">
+        Art Randomizer v{appVersion}
+      </Typography>
+      <Typography variant="body1" fontWeight="700">
         Hello, {currentUser?.displayName} ({currentUser?.email})
-      </p>
+      </Typography>
       <p>
-        {error
-          ? "Error: " + error.message
-          : loading
-          ? "Loading..."
-          : JSON.stringify(value?.data())}
+        {error ? (
+          <Typography gutterBottom>"Error: " + error.message</Typography>
+        ) : loading ? (
+          <CircularProgress />
+        ) : (
+          <>
+            <Typography component="h2" variant="h6" gutterBottom>
+              Admins
+            </Typography>
+            <Box component="ul">
+              {adminList?.data()?.admins.map((admin: string) => (
+                <Typography key={admin} component="li">
+                  {admin}
+                </Typography>
+              ))}
+            </Box>
+          </>
+        )}
       </p>
       <Button
         variant="contained"
-        onClick={() => snackbar.showMessage("Random number: " + Math.random())}
+        onClick={() => showSnackbarMessage("Random number: " + Math.random())}
       >
         Snackbar Demo
       </Button>
-    </div>
+    </PaddedContainer>
   );
 }

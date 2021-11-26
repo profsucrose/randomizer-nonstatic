@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, memo, useContext } from "react";
+import React, { useCallback, useMemo, useState, useContext } from "react";
 import { Route } from "react-router-dom";
 
 // hooks
@@ -8,18 +8,12 @@ import { useAuth } from "./AuthProvider";
 import { AppLayoutContext } from "../App";
 
 // components
-import {
-  Card,
-  CardContent,
-  Box,
-  Typography,
-  Link,
-  CircularProgress,
-} from "@mui/material";
+import { Card, CardContent, Box, Typography, Link } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import GoogleIcon from "@mui/icons-material/Google";
 import { Link as RouterLink } from "react-router-dom";
 import ErrorModal from "../components/ErrorModal";
+import LoadingScreen from "../components/LoadingScreen";
 
 interface PrivateRouteProps {
   path: string;
@@ -108,37 +102,3 @@ function Login() {
     </>
   );
 }
-
-const LoadingScreen = memo(function LoadingScreen() {
-  const { appBar } = useContext(AppLayoutContext);
-
-  return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      sx={{ height: `calc(100vh - ${appBar.height}px)` }}
-    >
-      <Box>
-        <Box
-          sx={{
-            position: "relative",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "inline-block",
-          }}
-        >
-          <CircularProgress size="80px" thickness={2} aria-label="Loading..." />
-        </Box>
-        <Typography
-          fontSize="20px"
-          textAlign="center"
-          mt={3}
-          sx={{ userSelect: "none" }}
-        >
-          Loading&hellip;
-        </Typography>
-      </Box>
-    </Box>
-  );
-});

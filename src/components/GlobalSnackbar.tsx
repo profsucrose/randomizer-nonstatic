@@ -12,9 +12,8 @@ export default function GlobalSnackbar({
 }: {
   message: string | null;
 }) {
-  const {
-    snackbar: { setVisibility, isVisible },
-  } = useContext(AppLayoutContext);
+  const { setSnackbarVisibility: setVisibility, isSnackbarVisible: isVisible } =
+    useContext(AppLayoutContext);
 
   const handleClose = useCallback(
     (_event: React.SyntheticEvent | React.MouseEvent, reason?: string) => {

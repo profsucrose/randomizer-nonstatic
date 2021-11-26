@@ -66,18 +66,14 @@ export default function App() {
 
 export const AppLayoutContext = createContext<{
   appBar: { width: number; height: number };
-  snackbar: {
-    showMessage: (message: string) => void;
-    isVisible: boolean;
-    setVisibility: React.Dispatch<React.SetStateAction<boolean>>;
-  };
+  showSnackbarMessage: (message: string) => void;
+  isSnackbarVisible: boolean;
+  setSnackbarVisibility: React.Dispatch<React.SetStateAction<boolean>>;
 }>({
   appBar: { width: 0, height: 0 },
-  snackbar: {
-    showMessage: () => {},
-    isVisible: false,
-    setVisibility: () => {},
-  },
+  showSnackbarMessage: () => {},
+  isSnackbarVisible: false,
+  setSnackbarVisibility: () => {},
 });
 
 function AppLayout() {
@@ -94,18 +90,20 @@ function AppLayout() {
 
   const showSnackbarMessage = useCallback(
     async (message) => {
-      // hide snackbar if visible, then wait a little
-      if (snackbarIsVisible) {
-        setSnackbarVisibility(false);
-        await new Promise((res) => setTimeout(res, 150));
-      }
+      // hide snackbar if visible, then wait a little if so
+      let wasVisible;
+      setSnackbarVisibility((prevVisibility) => {
+        wasVisible = prevVisibility;
+        return false;
+      });
+      if (wasVisible) await new Promise((resolve) => setTimeout(resolve, 100));
 
       // set message in state
       setSnackbarMessage(message);
       // show snackbar if message, hide if null
       setSnackbarVisibility(message !== null);
     },
-    [setSnackbarMessage, setSnackbarVisibility, snackbarIsVisible]
+    [setSnackbarMessage, setSnackbarVisibility]
   );
 
   const handleLogOut = useCallback(() => {
@@ -121,11 +119,9 @@ function AppLayout() {
     <AppLayoutContext.Provider
       value={{
         appBar: { width: appBarObserver.width, height: appBarObserver.height },
-        snackbar: {
-          showMessage: showSnackbarMessage,
-          isVisible: snackbarIsVisible,
-          setVisibility: setSnackbarVisibility,
-        },
+        showSnackbarMessage: showSnackbarMessage,
+        isSnackbarVisible: snackbarIsVisible,
+        setSnackbarVisibility: setSnackbarVisibility,
       }}
     >
       <Box sx={{ flexGrow: 1 }}>

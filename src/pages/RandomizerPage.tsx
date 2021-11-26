@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useRef,
   useState,
   createContext,
   useEffect,
@@ -16,6 +17,10 @@ import {
   Typography,
 } from "@mui/material";
 import PaddedContainer from "../components/PaddedContainer";
+import LoadingScreen from "../components/LoadingScreen";
+
+// context
+import { AppLayoutContext } from "../App";
 
 // firebase
 import { getFirestore, collection } from "@firebase/firestore";
@@ -38,61 +43,10 @@ const RandomizerContext = createContext<RandomizerContextType>({
   removeRandomizeListener: () => {},
 });
 
-// const SAMPLE_RANDOMIZERS: RandomizerInfo[] = [
-//   {
-//     name: "Topics",
-//     id: "topics",
-//     items: [
-//       "Funny",
-//       "Evil",
-//       "Happy",
-//       "Scary",
-//       "Sad",
-//       "Interesting",
-//       "Cool",
-//       "Boring",
-//       "Spicy",
-//     ],
-//   },
-//   {
-//     name: "Processes",
-//     id: "processes",
-//     items: [
-//       "Red",
-//       "Orange",
-//       "Yellow",
-//       "Green",
-//       "Blue",
-//       "Indigo",
-//       "Violet",
-//       "Brown",
-//       "Purple",
-//       "Black",
-//       "White",
-//     ],
-//   },
-//   {
-//     name: "Binaries",
-//     id: "binaries",
-//     items: [
-//       "Dog",
-//       "Cat",
-//       "Sloth",
-//       "Leopard",
-//       "Turtle",
-//       "Tiger",
-//       "Worm",
-//       "Bear",
-//       "Pig",
-//       "Sheep",
-//     ],
-//   },
-// ];
-
 export default function RandomizerPage() {
-  const [randomizeListeners, setRandomizeListeners] = useState<(() => void)[]>(
-    []
-  );
+  const { showSnackbarMessage } = useContext(AppLayoutContext);
+
+  const dataLoadCount = useRef<number>(0);
 
   const [listsData, listsAreLoading, listsFetchError] = useCollectionData(
     collection(getFirestore(firebaseApp), "lists"),
@@ -100,6 +54,27 @@ export default function RandomizerPage() {
       snapshotListenOptions: { includeMetadataChanges: true },
       idField: "id",
     }
+  );
+
+  // increment counter for every additional load
+  // then show "Lists updated" message
+  useEffect(() => {
+    dataLoadCount.current++;
+    if (dataLoadCount.current > 2) showSnackbarMessage("Lists updated");
+  }, [listsData, showSnackbarMessage]);
+
+  return listsAreLoading ? (
+    <LoadingScreen />
+  ) : listsFetchError ? (
+    <div>Error!</div>
+  ) : (
+    <Randomizer lists={listsData as unknown as RandomizerInfo[]} />
+  );
+}
+
+function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
+  const [randomizeListeners, setRandomizeListeners] = useState<(() => void)[]>(
+    []
   );
 
   const addRandomizeListener = useCallback(
@@ -137,19 +112,11 @@ export default function RandomizerPage() {
         >
           Randomize All
         </Button>
-        {listsAreLoading ? (
-          <div>Loading...</div>
-        ) : listsFetchError && !listsData ? (
-          <div>Error: {listsFetchError.message}</div>
-        ) : (
-          <Grid container spacing={2} columns={{ xs: 1 }}>
-            {(listsData as unknown as RandomizerInfo[]).map(
-              ({ name, id, items }) => (
-                <RandomizerWidget key={id} name={name} items={items} />
-              )
-            )}
-          </Grid>
-        )}
+        <Grid container spacing={2} columns={{ xs: 1 }}>
+          {lists.map(({ name, id, items }) => (
+            <RandomizerWidget key={id} name={name} items={items} />
+          ))}
+        </Grid>
       </RandomizerContext.Provider>
     </PaddedContainer>
   );
