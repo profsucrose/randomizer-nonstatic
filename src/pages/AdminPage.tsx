@@ -37,29 +37,27 @@ export default function AdminPage() {
       <Typography variant="body1" fontWeight="700">
         Art Randomizer v{appVersion}
       </Typography>
-      <Typography variant="body1" fontWeight="700">
+      <Typography variant="body1" fontWeight="700" gutterBottom>
         Hello, {currentUser?.displayName} ({currentUser?.email})
       </Typography>
-      <p>
-        {error ? (
-          <Typography gutterBottom>"Error: " + error.message</Typography>
-        ) : loading ? (
-          <CircularProgress />
-        ) : (
-          <>
-            <Typography component="h2" variant="h6" gutterBottom>
-              Admins
-            </Typography>
-            <Box component="ul">
-              {adminList?.data()?.admins.map((admin: string) => (
-                <Typography key={admin} component="li">
-                  {admin}
-                </Typography>
-              ))}
-            </Box>
-          </>
-        )}
-      </p>
+      {error ? (
+        <Typography gutterBottom>"Error: " + error.message</Typography>
+      ) : loading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          <Typography component="h2" variant="h6" gutterBottom>
+            Admins
+          </Typography>
+          <Box component="ul">
+            {adminList?.data()?.admins.map((admin: string) => (
+              <Typography key={admin} component="li">
+                {admin}
+              </Typography>
+            ))}
+          </Box>
+        </>
+      )}
       <Button
         variant="contained"
         onClick={() => showSnackbarMessage("Random number: " + Math.random())}
