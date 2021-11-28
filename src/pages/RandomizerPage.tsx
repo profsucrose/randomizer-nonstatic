@@ -100,24 +100,30 @@ function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
 
   return (
     <PaddedContainer>
-      <RandomizerContext.Provider
-        value={{ addRandomizeListener, removeRandomizeListener }}
-      >
-        <Button
-          fullWidth
-          variant="contained"
-          size="large"
-          sx={{ marginBottom: 3, height: "50px" }}
-          onClick={handleRandomizeAll}
+      {lists.length === 0 ? (
+        <Typography component="h2" variant="h5" textAlign="center">
+          No lists available. Please try again later.
+        </Typography>
+      ) : (
+        <RandomizerContext.Provider
+          value={{ addRandomizeListener, removeRandomizeListener }}
         >
-          Randomize All
-        </Button>
-        <Grid container spacing={2} columns={{ xs: 1 }}>
-          {lists.map(({ name, id, items }) => (
-            <RandomizerWidget key={id} name={name} items={items} />
-          ))}
-        </Grid>
-      </RandomizerContext.Provider>
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            sx={{ marginBottom: 3, height: "50px" }}
+            onClick={handleRandomizeAll}
+          >
+            Randomize All
+          </Button>
+          <Grid container spacing={2} columns={{ xs: 1 }}>
+            {lists.map(({ name, id, items }) => (
+              <RandomizerWidget key={id} name={name} items={items} />
+            ))}
+          </Grid>
+        </RandomizerContext.Provider>
+      )}
     </PaddedContainer>
   );
 }

@@ -43,7 +43,9 @@ export default function AdminPage() {
       {error ? (
         <Typography gutterBottom>"Error: " + error.message</Typography>
       ) : loading ? (
-        <CircularProgress />
+        <Box p={2} mb={2}>
+          <CircularProgress />
+        </Box>
       ) : (
         <>
           <Typography component="h2" variant="h6" gutterBottom>
