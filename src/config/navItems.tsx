@@ -2,20 +2,22 @@ import { AdminPanelSettings, Shuffle } from "@mui/icons-material";
 
 export interface NavItemInterface {
   name: string;
-  href: string;
   icon: React.ReactNode;
+  href: string;
+  match?: string[]; // optionally, path patterns to match
 }
 
 const navItems: NavItemInterface[] = [
   {
     name: "Randomizer",
-    href: "/",
     icon: <Shuffle />,
+    href: "/",
   },
   {
     name: "Admin",
-    href: "/admin",
     icon: <AdminPanelSettings />,
+    href: "/admin",
+    match: ["/admin", "/admin/*"],
   },
 ];
 

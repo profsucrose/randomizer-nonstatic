@@ -1,24 +1,20 @@
 import { useContext } from "react";
 
 // context
-import { AppLayoutContext } from "../App";
-
-// config
-import { version as appVersion } from "../../package.json";
+import { AppLayoutContext } from "../../App";
 
 // hooks
-import { useAuth } from "../auth/AuthProvider";
+import { useAuth } from "../../auth/AuthProvider";
 
 // firebase
 import { getFirestore, doc } from "@firebase/firestore";
-import firebaseApp from "../auth/base";
+import firebaseApp from "../../auth/base";
 import { useDocument } from "react-firebase-hooks/firestore";
 
 // components
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import PaddedContainer from "../components/PaddedContainer";
 
-export default function AdminPage() {
+export default function AdminGeneral() {
   const { currentUser } = useAuth();
   const { showSnackbarMessage } = useContext(AppLayoutContext);
 
@@ -30,13 +26,7 @@ export default function AdminPage() {
   );
 
   return (
-    <PaddedContainer>
-      <Typography component="h1" variant="h4" gutterBottom>
-        Admin
-      </Typography>
-      <Typography variant="body1" fontWeight="700">
-        Art Randomizer v{appVersion}
-      </Typography>
+    <>
       <Typography variant="body1" fontWeight="700" gutterBottom>
         Hello, {currentUser?.displayName} ({currentUser?.email})
       </Typography>
@@ -66,6 +56,6 @@ export default function AdminPage() {
       >
         Snackbar Demo
       </Button>
-    </PaddedContainer>
+    </>
   );
 }

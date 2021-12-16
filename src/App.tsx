@@ -28,9 +28,13 @@ import {
   Typography,
 } from "@mui/material";
 import ErrorModal from "./components/ErrorModal";
+import GlobalSnackbar from "./components/GlobalSnackbar";
 
 // config
 import navItems, { NavItemInterface } from "./config/navItems";
+
+// util
+import { isMatch } from "matcher";
 
 // hooks
 import useResizeObserver from "./hooks/useResizeObserver";
@@ -41,8 +45,11 @@ import { AuthProvider, useAuth } from "./auth/AuthProvider";
 
 // pages
 import RandomizerPage from "./pages/RandomizerPage";
+// admin pages
 import AdminPage from "./pages/AdminPage";
-import GlobalSnackbar from "./components/GlobalSnackbar";
+import AdminGeneral from "./pages/AdminPage/AdminGeneral";
+import AdminLists from "./pages/AdminPage/AdminLists";
+import AdminAbout from "./pages/AdminPage/AdminAbout";
 
 export default function App() {
   const { pathname } = useLocation();
@@ -57,7 +64,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<AppLayout />}>
           <Route path="/" element={<RandomizerPage />} />
-          <PrivateRoute path="admin" element={<AdminPage />} />
+          <PrivateRoute path="admin" element={<AdminPage />}>
+            <Route path="/" element={<AdminGeneral />} />
+            <Route path="lists" element={<AdminLists />} />
+            <Route path="about" element={<AdminAbout />} />
+          </PrivateRoute>
         </Route>
       </Routes>
     </AuthProvider>
@@ -137,7 +148,7 @@ function AppLayout() {
                 color="#fff"
                 sx={{ textDecoration: "none" }}
               >
-                Jeff's Randomizer
+                Art Randomizer
               </Link>
             </Typography>
             {/* nav buttons */}
@@ -179,8 +190,13 @@ function NavButton({
   const navigate = useNavigate();
 
   const isSelected = useMemo(
-    () => pathname === navItem.href,
-    [pathname, navItem.href]
+    () =>
+      navItem.match
+        ? // use match array if available
+          isMatch(pathname, navItem.match)
+        : // fallback to link comparison
+          pathname === navItem.href,
+    [pathname, navItem.match, navItem.href]
   );
 
   return (
