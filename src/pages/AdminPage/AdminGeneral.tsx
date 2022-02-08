@@ -1,29 +1,39 @@
-import { useContext } from "react";
-
-// context
-import { AppLayoutContext } from "../../App";
+import { useCallback } from "react";
 
 // hooks
 import { useAuth } from "../../auth/AuthProvider";
 
 // firebase
-import { getFirestore, doc } from "@firebase/firestore";
-import firebaseApp from "../../auth/base";
+import { adminListDoc } from "../../utils/db";
 import { useDocument } from "react-firebase-hooks/firestore";
 
 // components
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { Add, Delete } from "@mui/icons-material";
+import { addAdmin, removeAdmin } from "../../utils/db";
 
 export default function AdminGeneral() {
   const { currentUser } = useAuth();
-  const { showSnackbarMessage } = useContext(AppLayoutContext);
 
-  const [adminList, loading, error] = useDocument(
-    doc(getFirestore(firebaseApp), "config", "adminList"),
-    {
-      snapshotListenOptions: { includeMetadataChanges: true },
+  const [adminList, loading, error] = useDocument(adminListDoc, {
+    snapshotListenOptions: { includeMetadataChanges: true },
+  });
+
+  const handleAddAdmin = useCallback(async () => {
+    const adminEmail = window.prompt("Enter a Windward email below:");
+
+    // add email to admin list
+    if (adminEmail && adminEmail !== "") {
+      addAdmin(adminEmail);
     }
-  );
+  }, []);
 
   return (
     <>
@@ -31,7 +41,7 @@ export default function AdminGeneral() {
         Hello, {currentUser?.displayName} ({currentUser?.email})
       </Typography>
       {error ? (
-        <Typography gutterBottom>"Error: " + error.message</Typography>
+        <Typography gutterBottom>{"Error: " + error.message}</Typography>
       ) : loading ? (
         <Box p={2} mb={2}>
           <CircularProgress />
@@ -43,19 +53,45 @@ export default function AdminGeneral() {
           </Typography>
           <Box component="ul">
             {adminList?.data()?.admins.map((admin: string) => (
-              <Typography key={admin} component="li">
-                {admin}
-              </Typography>
+              <AdminItem key={admin} admin={admin} />
             ))}
           </Box>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            aria-label="Add Admin"
+            onClick={handleAddAdmin}
+          >
+            Admin
+          </Button>
         </>
       )}
-      <Button
-        variant="contained"
-        onClick={() => showSnackbarMessage("Random number: " + Math.random())}
-      >
-        Snackbar Demo
-      </Button>
     </>
+  );
+}
+
+function AdminItem({ admin }: { admin: string }) {
+  const handleRemoveAdmin = useCallback(async () => {
+    const shouldRemoveAdmin = window.confirm(`Remove admin ${admin}?`);
+
+    // if shouldRemoveAdmin, set adminList doc, excluding now-removed email
+    if (shouldRemoveAdmin) removeAdmin(admin);
+  }, [admin]);
+
+  return (
+    <Typography component="li">
+      {admin}
+      <Box ml={1} display="inline-block">
+        <Tooltip title="Remove Admin" placement="right">
+          <IconButton
+            color="error"
+            aria-label={"Remove Admin " + admin}
+            onClick={handleRemoveAdmin}
+          >
+            <Delete />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Typography>
   );
 }

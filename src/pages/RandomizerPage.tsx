@@ -1,6 +1,5 @@
 import {
   useCallback,
-  useRef,
   useState,
   createContext,
   useEffect,
@@ -19,19 +18,9 @@ import {
 import PaddedContainer from "../components/PaddedContainer";
 import LoadingScreen from "../components/LoadingScreen";
 
-// context
+// types
+import { RandomizerInfo } from "../interfaces/randomizer";
 import { AppLayoutContext } from "../App";
-
-// firebase
-import { getFirestore, collection } from "@firebase/firestore";
-import firebaseApp from "../auth/base";
-import { useCollectionData } from "react-firebase-hooks/firestore";
-
-interface RandomizerInfo {
-  name: string;
-  id: string; // firebase uid most likely
-  items: string[];
-}
 
 interface RandomizerContextType {
   addRandomizeListener: (listener: () => void) => void;
@@ -44,24 +33,13 @@ const RandomizerContext = createContext<RandomizerContextType>({
 });
 
 export default function RandomizerPage() {
-  const { showSnackbarMessage } = useContext(AppLayoutContext);
-
-  const dataLoadCount = useRef<number>(0);
-
-  const [listsData, listsAreLoading, listsFetchError] = useCollectionData(
-    collection(getFirestore(firebaseApp), "lists"),
-    {
-      snapshotListenOptions: { includeMetadataChanges: true },
-      idField: "id",
-    }
-  );
-
-  // increment counter for every additional load
-  // then show "Lists updated" message
-  useEffect(() => {
-    dataLoadCount.current++;
-    if (dataLoadCount.current > 2) showSnackbarMessage("Lists updated");
-  }, [listsData, showSnackbarMessage]);
+  const {
+    lists: {
+      data: listsData,
+      loading: listsAreLoading,
+      error: listsFetchError,
+    },
+  } = useContext(AppLayoutContext);
 
   return listsAreLoading ? (
     <LoadingScreen />
@@ -100,7 +78,7 @@ function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
 
   return (
     <PaddedContainer>
-      {lists.length === 0 ? (
+      {lists?.length === 0 ? (
         <Typography component="h2" variant="h5" textAlign="center">
           No lists available. Please try again later.
         </Typography>
@@ -117,7 +95,11 @@ function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
           >
             Randomize All
           </Button>
-          <Grid container spacing={2} columns={{ xs: 1 }}>
+          <Grid
+            container
+            spacing={2}
+            columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }}
+          >
             {lists.map(({ name, id, items }) => (
               <RandomizerWidget key={id} name={name} items={items} />
             ))}
@@ -155,7 +137,7 @@ function RandomizerWidget({ name, items }: { name: string; items: string[] }) {
   }, [addRandomizeListener, removeRandomizeListener, handleRandomize]);
 
   return (
-    <Grid item xs>
+    <Grid item xs={1} sm={1} md={1} lg={1} xl={1}>
       <Card>
         <CardContent>
           <Typography
@@ -183,14 +165,14 @@ function RandomizerWidget({ name, items }: { name: string; items: string[] }) {
               fontSize="17px"
               sx={{
                 color:
-                  items.length === 0
+                  items?.length === 0
                     ? "error.main" // error red for empty list
                     : currentRandomItem
                     ? null
                     : "#666", // gray for nothing selected
               }}
             >
-              {items.length === 0
+              {items?.length === 0
                 ? "List is empty"
                 : currentRandomItem || "Click button to randomize"}
             </Typography>
@@ -199,7 +181,7 @@ function RandomizerWidget({ name, items }: { name: string; items: string[] }) {
             fullWidth
             variant="contained"
             onClick={handleRandomize}
-            disabled={items.length === 0}
+            disabled={items?.length === 0}
           >
             Randomize
           </Button>

@@ -38,6 +38,7 @@ import { isMatch } from "matcher";
 
 // hooks
 import useResizeObserver from "./hooks/useResizeObserver";
+import useLists from "./hooks/useLists";
 
 // auth
 import PrivateRoute from "./auth/PrivateRoute";
@@ -80,17 +81,26 @@ export const AppLayoutContext = createContext<{
   showSnackbarMessage: (message: string) => void;
   isSnackbarVisible: boolean;
   setSnackbarVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+  lists: ReturnType<typeof useLists>;
 }>({
   appBar: { width: 0, height: 0 },
   showSnackbarMessage: () => {},
   isSnackbarVisible: false,
   setSnackbarVisibility: () => {},
+  lists: {
+    data: [],
+    loading: false,
+    error: undefined,
+  },
 });
 
 function AppLayout() {
   const navigate = useNavigate();
   const appBarObserver = useResizeObserver();
   const { hasAuth, logOut } = useAuth();
+
+  // lists
+  const lists = useLists();
 
   // error for ErrorModal
   const [error, setError] = useState<Error | null>(null);
@@ -133,6 +143,7 @@ function AppLayout() {
         showSnackbarMessage: showSnackbarMessage,
         isSnackbarVisible: snackbarIsVisible,
         setSnackbarVisibility: setSnackbarVisibility,
+        lists,
       }}
     >
       <Box sx={{ flexGrow: 1 }}>
