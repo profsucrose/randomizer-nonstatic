@@ -10,12 +10,16 @@ import {
   Button,
   Card,
   CardContent,
+  Divider,
   Link,
   Typography,
 } from "@mui/material";
 
 // icons
 import { GitHub as GitHubIcon } from "@mui/icons-material";
+
+// config
+import { version as appVersion } from "../../../package.json";
 
 export default function AdminPage() {
   const { appBar } = useContext(AppLayoutContext);
@@ -55,6 +59,15 @@ export default function AdminPage() {
             >
               Update Lists on GitHub
             </Button>
+          </CardContent>
+          <Divider />
+          <CardContent>
+            <Typography variant="body1" fontWeight="500" gutterBottom>
+              Randomizer v{appVersion}
+            </Typography>
+            <Typography variant="body1">
+              Created for Jeff Miller by Zane St. John
+            </Typography>
           </CardContent>
         </Card>
       </Box>
