@@ -1,47 +1,63 @@
+import { useContext } from "react";
+
+// context
+import { AppLayoutContext } from "../../App";
+
 // components
-import { Link as RouterLink, Outlet, useLocation } from "react-router-dom";
-import { Box, Tab, Tabs } from "@mui/material";
-import PaddedContainer from "../../components/PaddedContainer";
+import { Link as RouterLink } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Link,
+  Typography,
+} from "@mui/material";
+
+// icons
+import { GitHub as GitHubIcon } from "@mui/icons-material";
 
 export default function AdminPage() {
-  const { pathname } = useLocation();
+  const { appBar } = useContext(AppLayoutContext);
+
   return (
-    <PaddedContainer>
-      <Tabs value={pathname} centered>
-        {AdminPageLinks.map((link) => (
-          <LinkTab {...link} value={link.to} key={link.to} />
-        ))}
-      </Tabs>
-      <Box pt={1} sx={{ borderTop: 1, borderColor: "divider" }}>
-        <Outlet />
+    <>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        boxSizing="border-box"
+        sx={{ height: `calc(100vh - ${appBar.height}px)` }}
+      >
+        <Card sx={{ width: "min(400px, 85vw)", textAlign: "center" }}>
+          <CardContent>
+            <Typography
+              component="div"
+              fontWeight="700"
+              fontSize="25px"
+              gutterBottom
+            >
+              Admin
+            </Typography>
+            <Typography gutterBottom paddingBottom="10px">
+              Are you a student?{" "}
+              <Link component={RouterLink} to="/">
+                Go Back
+              </Link>
+            </Typography>
+            <Button
+              startIcon={<GitHubIcon />}
+              variant="contained"
+              href="https://github.com/zane-programs/randomizer-static/tree/master/public/lists"
+              target="_blank"
+              rel="noopener noreferrer"
+              fullWidth
+            >
+              Update Lists on GitHub
+            </Button>
+          </CardContent>
+        </Card>
       </Box>
-    </PaddedContainer>
+    </>
   );
 }
-
-function LinkTab({
-  label,
-  to,
-  value,
-}: {
-  label: string;
-  to: string;
-  value: string;
-}) {
-  return <Tab label={label} component={RouterLink} value={value} to={to} />;
-}
-
-// fix link string
-// e.g. "/"" -> ""; "edit" -> "/edit"; "/edit" -> "/edit"
-const fixLinkTo = (to: string) =>
-  to === "/" ? "" : to.charAt(0) !== "/" ? "/" + to : to;
-
-const AdminPageLinks: { label: string; to: string }[] = [
-  { label: "General", to: "/" },
-  { label: "Lists", to: "lists" },
-  { label: "About", to: "about" },
-].map((link) => {
-  // fix paths
-  link.to = "/admin" + fixLinkTo(link.to);
-  return link;
-});

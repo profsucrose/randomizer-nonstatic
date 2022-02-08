@@ -20,14 +20,12 @@ import {
 import {
   AppBar,
   Box,
-  Button,
   IconButton,
   Link,
   Toolbar,
   Tooltip,
   Typography,
 } from "@mui/material";
-import ErrorModal from "./components/ErrorModal";
 import GlobalSnackbar from "./components/GlobalSnackbar";
 
 // config
@@ -40,17 +38,9 @@ import { isMatch } from "matcher";
 import useResizeObserver from "./hooks/useResizeObserver";
 import useLists from "./hooks/useLists";
 
-// auth
-import PrivateRoute from "./auth/PrivateRoute";
-import { AuthProvider, useAuth } from "./auth/AuthProvider";
-
 // pages
 import RandomizerPage from "./pages/RandomizerPage";
-// admin pages
 import AdminPage from "./pages/AdminPage";
-import AdminGeneral from "./pages/AdminPage/AdminGeneral";
-import AdminLists from "./pages/AdminPage/AdminLists";
-import AdminAbout from "./pages/AdminPage/AdminAbout";
 
 export default function App() {
   const { pathname } = useLocation();
@@ -61,18 +51,12 @@ export default function App() {
   }, [pathname]);
 
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/" element={<AppLayout />}>
-          <Route path="/" element={<RandomizerPage />} />
-          <PrivateRoute path="admin" element={<AdminPage />}>
-            <Route path="/" element={<AdminGeneral />} />
-            <Route path="lists" element={<AdminLists />} />
-            <Route path="about" element={<AdminAbout />} />
-          </PrivateRoute>
-        </Route>
-      </Routes>
-    </AuthProvider>
+    <Routes>
+      <Route path="/" element={<AppLayout />}>
+        <Route path="/" element={<RandomizerPage />} />
+        <Route path="admin" element={<AdminPage />} />
+      </Route>
+    </Routes>
   );
 }
 
@@ -95,15 +79,10 @@ export const AppLayoutContext = createContext<{
 });
 
 function AppLayout() {
-  const navigate = useNavigate();
   const appBarObserver = useResizeObserver();
-  const { hasAuth, logOut } = useAuth();
 
   // lists
   const lists = useLists();
-
-  // error for ErrorModal
-  const [error, setError] = useState<Error | null>(null);
 
   // snackbar setup
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
@@ -126,15 +105,6 @@ function AppLayout() {
     },
     [setSnackbarMessage, setSnackbarVisibility]
   );
-
-  const handleLogOut = useCallback(() => {
-    logOut()
-      .then(() => {
-        navigate("/"); // go to main page
-        showSnackbarMessage("Signed out");
-      })
-      .catch((e) => setError(e));
-  }, [logOut, navigate, showSnackbarMessage, setError]);
 
   return (
     <AppLayoutContext.Provider
@@ -171,19 +141,12 @@ function AppLayout() {
                 marginRight={index + 1 === navItems.length ? 0 : 2}
               />
             ))}
-            {hasAuth ? (
-              <Button color="inherit" sx={{ ml: 3 }} onClick={handleLogOut}>
-                Sign Out
-              </Button>
-            ) : null}
           </Toolbar>
         </AppBar>
         <Box style={{ minHeight: `calc(100vh - ${appBarObserver.height}px)` }}>
           <Outlet />
         </Box>
       </Box>
-      {/* error modal for any issues w/ logout (for now) */}
-      <ErrorModal error={error} />
       {/* snackbar/toast for messages */}
       <GlobalSnackbar message={snackbarMessage} />
     </AppLayoutContext.Provider>

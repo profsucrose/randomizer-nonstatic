@@ -22,6 +22,9 @@ import LoadingScreen from "../components/LoadingScreen";
 import { RandomizerInfo } from "../interfaces/randomizer";
 import { AppLayoutContext } from "../App";
 
+// utils
+import { hashString } from "../utils/hash";
+
 interface RandomizerContextType {
   addRandomizeListener: (listener: () => void) => void;
   removeRandomizeListener: (listener: () => void) => void;
@@ -100,8 +103,12 @@ function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
             spacing={2}
             columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }}
           >
-            {lists.map(({ name, id, items }) => (
-              <RandomizerWidget key={id} name={name} items={items} />
+            {lists.map(({ name, items }) => (
+              <RandomizerWidget
+                key={hashString(name + JSON.stringify(items))}
+                name={name}
+                items={items}
+              />
             ))}
           </Grid>
         </RandomizerContext.Provider>
