@@ -25,6 +25,9 @@ import { AppLayoutContext } from "../App";
 // utils
 import { hashString } from "../utils/hash";
 
+// icons
+import { Shuffle as ShuffleIcon } from "@mui/icons-material";
+
 interface RandomizerContextType {
   addRandomizeListener: (listener: () => void) => void;
   removeRandomizeListener: (listener: () => void) => void;
@@ -95,6 +98,7 @@ function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
             size="large"
             sx={{ marginBottom: 3, height: "50px" }}
             onClick={handleRandomizeAll}
+            startIcon={<ShuffleIcon />}
           >
             Randomize All
           </Button>
