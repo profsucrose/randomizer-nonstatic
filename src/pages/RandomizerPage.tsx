@@ -101,7 +101,7 @@ function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
           <Grid
             container
             spacing={2}
-            columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }}
+            columns={{ xs: 1, sm: 1, md: 3, lg: 3, xl: 3 }}
           >
             {lists.map(({ name, items }) => (
               <RandomizerWidget
