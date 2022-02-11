@@ -51,6 +51,7 @@
   },
   "devDependencies": {
     "csv-parse": "^5.0.4",
+    "dotenv": "^16.0.0",
     "react-app-rewired": "^2.1.11"
   }
 }
