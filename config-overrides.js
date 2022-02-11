@@ -7,7 +7,7 @@ module.exports = function override(config) {
   const parsedLists = parseCSVSync("./lists/lists.csv");
 
   const fullCommitHash = getCommandOutputSync("git rev-parse HEAD");
-  const repoUrl = getCommandOutputSync("git config --get remote.origin.url");
+  const repoUrl = getCommandOutputSync("git remote get-url origin");
 
   // add my extras
   if (!config.plugins) config.plugins = [];
