@@ -20,6 +20,7 @@ import { GitHub as GitHubIcon } from "@mui/icons-material";
 
 // config
 import { version as appVersion } from "../../package.json";
+import { REPOSITORY_URL } from "../config";
 
 export default function AdminPage() {
   const { appBar } = useContext(AppLayoutContext);
@@ -51,7 +52,7 @@ export default function AdminPage() {
           <Button
             startIcon={<GitHubIcon />}
             variant="contained"
-            href={__REPOSITORY_URL__ + "/tree/master/lists"}
+            href={REPOSITORY_URL + "/tree/master/lists"}
             target="_blank"
             rel="noopener noreferrer"
             fullWidth
@@ -66,7 +67,7 @@ export default function AdminPage() {
             <Link
               target="_blank"
               rel="noopener noreferrer"
-              href={__REPOSITORY_URL__ + "/commit/" + __COMMIT_HASH__}
+              href={REPOSITORY_URL + "/commit/" + __COMMIT_HASH__}
               fontFamily="'Roboto Mono', monospace"
             >
               {__COMMIT_HASH__.substring(0, 7)}

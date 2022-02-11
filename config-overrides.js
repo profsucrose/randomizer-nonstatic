@@ -2,9 +2,6 @@ const { execSync } = require("child_process");
 const { DefinePlugin } = require("webpack");
 const parseCSVSync = require("./parse_csv");
 
-// get env variables from .env
-require("dotenv").config();
-
 module.exports = function override(config) {
   // parse word list csv (synchronous)
   const parsedLists = parseCSVSync("./lists/lists.csv");
@@ -17,7 +14,6 @@ module.exports = function override(config) {
   config.plugins.push(
     new DefinePlugin({
       __COMMIT_HASH__: fullCommitHash,
-      __REPOSITORY_URL__: JSON.stringify(process.env.REPOSITORY_URL),
       __RANDOMIZER_LISTS__: JSON.stringify(parsedLists),
     })
   );
