@@ -6,8 +6,6 @@ const parseCSVSync = require("./parse_csv");
 require("dotenv").config();
 
 module.exports = function override(config) {
-  console.log(getCommandOutputSync("git remote -v"));
-
   // parse word list csv (synchronous)
   const parsedLists = parseCSVSync("./lists/lists.csv");
 
