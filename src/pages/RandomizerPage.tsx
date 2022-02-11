@@ -16,17 +16,16 @@ import {
   Typography,
 } from "@mui/material";
 import PaddedContainer from "../components/PaddedContainer";
-import LoadingScreen from "../components/LoadingScreen";
 
 // types
 import { RandomizerInfo } from "../interfaces/randomizer";
-import { AppLayoutContext } from "../App";
-
-// utils
-import { hashString } from "../utils/hash";
 
 // icons
 import { Shuffle as ShuffleIcon } from "@mui/icons-material";
+
+// lists for randomizer
+import { getLists } from "../utils/lists";
+const lists = getLists();
 
 interface RandomizerContextType {
   addRandomizeListener: (listener: () => void) => void;
@@ -39,21 +38,7 @@ const RandomizerContext = createContext<RandomizerContextType>({
 });
 
 export default function RandomizerPage() {
-  const {
-    lists: {
-      data: listsData,
-      loading: listsAreLoading,
-      error: listsFetchError,
-    },
-  } = useContext(AppLayoutContext);
-
-  return listsAreLoading ? (
-    <LoadingScreen />
-  ) : listsFetchError ? (
-    <div>Error!</div>
-  ) : (
-    <Randomizer lists={listsData as unknown as RandomizerInfo[]} />
-  );
+  return <Randomizer lists={lists} />;
 }
 
 function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
@@ -107,12 +92,8 @@ function Randomizer({ lists }: { lists: RandomizerInfo[] }) {
             spacing={2}
             columns={{ xs: 1, sm: 1, md: 3, lg: 3, xl: 3 }}
           >
-            {lists.map(({ name, items }) => (
-              <RandomizerWidget
-                key={hashString(name + JSON.stringify(items))}
-                name={name}
-                items={items}
-              />
+            {lists.map(({ name, id, items }) => (
+              <RandomizerWidget key={id} name={name} items={items} />
             ))}
           </Grid>
         </RandomizerContext.Provider>
