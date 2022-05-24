@@ -109,8 +109,7 @@ const generateIdentifier = () =>
         .map(() => Math.floor(Math.random() * 36).toString(36))
         .join('')
 
-// const TIME_UNTIL_NEW = 30 * 60 * 1000; // 30 Minutes
-const TIME_UNTIL_NEW = 5000
+const TIME_UNTIL_NEW = 30 * 60 * 1000; // 30 Minutes
 
 // Tag each client with time when list was generated, and list
 interface UserEntry {
