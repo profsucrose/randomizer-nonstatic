@@ -39,7 +39,6 @@ import useResizeObserver from "./hooks/useResizeObserver";
 
 // pages
 import RandomizerPage from "./pages/RandomizerPage";
-import AdminPage from "./pages/AdminPage";
 
 export default function App() {
   const { pathname } = useLocation();
@@ -53,7 +52,6 @@ export default function App() {
     <Routes>
       <Route path="/" element={<AppLayout />}>
         <Route path="/" element={<RandomizerPage />} />
-        <Route path="admin" element={<AdminPage />} />
       </Route>
     </Routes>
   );

@@ -1,17 +1,6 @@
-import { RandomizerInfo } from "../interfaces/randomizer";
-
-export function getLists() {
-  const listsRaw = __RANDOMIZER_LISTS__;
-
-  const listsParsed: RandomizerInfo[] = Object.keys(listsRaw).map(
-    (listName, index) => ({
-      name: listName,
-      id: hashString(index + __COMMIT_HASH__ + listName),
-      items: listsRaw[listName],
-    })
-  );
-
-  return listsParsed;
+export async function getLists() {
+  const listsRaw = await (await fetch('/api/list')).json();
+    return listsRaw
 }
 
 /**

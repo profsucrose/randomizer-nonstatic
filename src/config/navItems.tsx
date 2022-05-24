@@ -1,4 +1,4 @@
-import { AdminPanelSettings, Shuffle } from "@mui/icons-material";
+import { Shuffle } from "@mui/icons-material";
 
 export interface NavItemInterface {
   name: string;
@@ -12,13 +12,7 @@ const navItems: NavItemInterface[] = [
     name: "Randomizer",
     icon: <Shuffle />,
     href: "/",
-  },
-  {
-    name: "Admin",
-    icon: <AdminPanelSettings />,
-    href: "/admin",
-    match: ["/admin", "/admin/*"],
-  },
+  }
 ];
 
 export default navItems;
