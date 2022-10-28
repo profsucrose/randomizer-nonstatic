@@ -44,7 +44,7 @@ function Center({ children }: { children: any }) {
     >
       <Grid item xs={3}>
         {children}
-      </Grid>   
+      </Grid>
     </Grid>
   )
 }
