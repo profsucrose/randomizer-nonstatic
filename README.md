@@ -1,3 +1,5 @@
+Fork of Zane St. John's `Randomizer Static` codebase, with some tweaks to fetch from a Google Sheet instead of an uploaded text file. However, the deployment is more fragile than it should and a microservice it depends on (Redis) may break if the project is not properly maintainned. Will in the future probably rewrite this to simplify it (once I have time)
+
 # Randomizer Static
 
 ## Develop
